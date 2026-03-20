@@ -176,6 +176,52 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
 .message.own .msg-author{color:var(--accent)}
 .message.own .msg-content{color:var(--text)}
+
+/* ── MOBILE RESPONSIVE ── */
+.menu-toggle{display:none;width:36px;height:36px;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0}
+.menu-toggle:hover{background:var(--surface2)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:49;backdrop-filter:blur(2px)}
+.sidebar-overlay.open{display:block}
+
+@media(max-width:768px){
+  .auth-card{padding:32px 20px;border-radius:16px;margin:12px}
+  .auth-card h2{font-size:22px}
+
+  .menu-toggle{display:flex}
+
+  .sidebar{
+    position:fixed;left:-280px;top:0;bottom:0;z-index:50;
+    width:280px;min-width:280px;
+    transition:left .3s cubic-bezier(.4,0,.2,1);
+    box-shadow:var(--shadow);
+  }
+  .sidebar.open{left:0}
+
+  .chat-header{padding:0 12px;gap:8px}
+  .chat-header .ch-desc{display:none}
+  .chat-header .ch-title{font-size:15px}
+  .member-count{display:none}
+
+  .messages-wrap{padding:12px 0}
+  .message{padding:4px 12px}
+  .msg-content{font-size:13px}
+  .msg-av{width:32px;height:32px;font-size:16px}
+
+  .input-area{padding:8px 12px 12px}
+  .msg-input{font-size:14px}
+
+  .emoji-picker{left:8px;right:8px;width:auto;bottom:80px}
+
+  .modal{margin:12px;padding:24px 20px;border-radius:16px}
+
+  #toast-container{bottom:80px;right:12px;left:12px}
+  .toast{font-size:12px}
+}
+
+@media(max-width:400px){
+  .auth-card{padding:24px 16px}
+  .avatar-opt{width:36px;height:36px;font-size:18px}
+}
 </style>
 </head>
 <body>
@@ -235,8 +281,12 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
     </div>
   </div>
 
+  <!-- Overlay mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
   <div class="chat-main">
     <div class="chat-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
       <span id="header-hash" style="color:var(--text3);font-size:18px">#</span>
       <span class="ch-title" id="header-title">général</span>
       <span class="ch-desc" id="header-desc"></span>
@@ -443,7 +493,7 @@ function renderChannelsList(channels, filter='') {
     const div = document.createElement('div');
     div.className = 'channel-item' + (ch.id === currentChannel ? ' active' : '');
     div.innerHTML = `<span class="ch-hash">#</span><span class="ch-name">${escH(ch.name)}</span>`;
-    div.onclick = () => selectChannel(ch.id);
+    div.onclick = () => { selectChannel(ch.id); closeSidebar(); };
     list.appendChild(div);
   });
 }
@@ -712,6 +762,18 @@ function fmtDate(d) {
   if (md.getTime() === yest.getTime()) return "Hier";
   return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 }
+
+// ── MOBILE SIDEBAR ──
+window.toggleSidebar = () => {
+  const s = document.querySelector('.sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.toggle('open');
+  o.classList.toggle('open');
+};
+window.closeSidebar = () => {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+};
 
 document.addEventListener('click', e => {
   if (!e.target.closest('#emoji-picker') && !e.target.closest('.tool-btn')) document.getElementById('emoji-picker').classList.remove('open');
